@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YOMI: Cyber Hustle</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <section id="login-screen" class="modal-overlay">
+        <div class="terminal-box">
+            <h2>[ SECURE UPLINK ESTABLISHED ]</h2>
+            <p>Enter operator credentials to join a combat subnet.</p>
+            
+            <div class="input-group">
+                <label>> ALIAS (Nickname):</label>
+                <input type="text" id="nickname-input" placeholder="e.g. ZeroCool" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <label>> SUBNET ID (Room Code):</label>
+                <input type="text" id="room-input" placeholder="e.g. room-77" autocomplete="off">
+            </div>
+            
+            <button class="master-btn" onclick="joinLobby()">INITIATE HANDSHAKE</button>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/html/codex.html" class="glitch-link" style="color: #00e5ff; 
+                                                  text-decoration: none; 
+                                                  border-bottom: 1px dashed #00e5ff;">
+                    [ ACCESS OPERATOR CODEX ]
+                </a>
+            </div>
+            <p id="login-error" class="text-red hidden"></p>
+        </div>
+    </section>
+
+    <div id="game-screen" class="hidden">
+        <header class="hud">
+            <div class="player-stats">
+                <h2>YOU [<span id="my-role">P1</span>]</h2>
+                <div class="bar-container"><div id="my-hp" class="bar hp">100%</div></div>
+                <div id="my-statuses"></div>
+                <div class="bar-container"><div id="my-cpu" class="bar cpu">CPU: 3/5</div></div>
+                <div id="opp-statuses"></div>
+            </div>
+            
+            <div class="turn-indicator">TURN <span id="turn-num">1</span></div>
+            
+            <div class="player-stats right">
+                <h2>OPPONENT</h2>
+                <div class="bar-container"><div id="opp-hp" class="bar hp">100%</div></div>
+            </div>
+        </header>
+        <main class="dashboard">
+            <section class="controls">
+                <h3>TACTICAL PAYLOADS</h3>
+                
+                <div class="category">
+                <h4>[ AGGRESSION ]</h4>
+                <button class="action-btn btn-aggression" onclick="selectMove('syn_flood')">
+                    <span class="btn-title">SYN Flood</span>
+                    <span class="btn-cost">Cost: 1 Thread</span>
+                    <span class="btn-desc">Applies [Congested]. Opponent regains 1 less Thread next turn.</span>
+                </button>
+                <button class="action-btn btn-aggression" onclick="selectMove('sql_inject')">
+                    <span class="btn-title">SQL Injection</span>
+                    <span class="btn-cost">Cost: 3 Threads</span>
+                    <span class="btn-desc">Standard payload. Deals a reliable 20 damage.</span>
+                </button>
+                <button class="action-btn btn-aggression" onclick="selectMove('ransomware')">
+                    <span class="btn-title">Ransomware</span>
+                    <span class="btn-cost">Cost: 5 Threads</span>
+                    <span class="btn-desc">Applies [Encrypted]. Opponent's Setup/Recovery costs 2x next turn.</span>
+                </button>
+                <button class="action-btn btn-aggression" onclick="selectMove('ddos')">
+                    <span class="btn-title">DDoS Botnet</span>
+                    <span class="btn-cost">Cost: ALL Threads</span>
+                    <span class="btn-desc">Consumes all Threads. Deals 5 damage per Thread spent.</span>
+                </button>
+                <button class="action-btn btn-aggression" onclick="selectMove('rm_rf')">
+                    <span class="btn-title">Run rm -rf /</span>
+                    <span class="btn-cost">Cost: 7 Threads</span>
+                    <span class="btn-desc">Massive 45 damage, but highly susceptible to Honeypot recoil.</span>
+                </button>
+            </div>
+
+            <div class="category">
+                <h4>[ DEFENSE ]</h4>
+                <button class="action-btn btn-defense" onclick="selectMove('packet_sniff')">
+                    <span class="btn-title">Packet Sniffer</span>
+                    <span class="btn-cost">Cost: 1 Thread</span>
+                    <span class="btn-desc">Applies [Traced]. Your next Aggression against them deals +50% DMG.</span>
+                </button>
+                <button class="action-btn btn-defense" onclick="selectMove('honeypot')">
+                    <span class="btn-title">Deploy Honeypot</span>
+                    <span class="btn-cost">Cost: 2 Threads</span>
+                    <span class="btn-desc">Blocks 100% of an attack and deals 20 Recoil Damage.</span>
+                </button>
+                <button class="action-btn btn-defense" onclick="selectMove('firewall')">
+                    <span class="btn-title">Hard Firewall</span>
+                    <span class="btn-cost">Cost: 2 Threads</span>
+                    <span class="btn-desc">Mitigates 60% of all incoming damage this turn.</span>
+                </button>
+                <button class="action-btn btn-defense" onclick="selectMove('ip_spoof')">
+                    <span class="btn-title">IP Spoofing</span>
+                    <span class="btn-cost">Cost: 3 Threads</span>
+                    <span class="btn-desc">Evades 100% of incoming attacks. Guaranteed dodge.</span>
+                </button>
+                <button class="action-btn btn-defense" onclick="selectMove('kill_process')">
+                    <span class="btn-title">Kill Process</span>
+                    <span class="btn-cost">Cost: 4 Threads</span>
+                    <span class="btn-desc">Cancels opponent's Setup/Recovery move and deals 15 damage.</span>
+                </button>
+            </div>
+
+            <div class="category">
+                <h4>[ SETUP & RECOVERY ]</h4>
+                <button class="action-btn btn-setup" onclick="selectMove('overclock')">
+                    <span class="btn-title">Overclock CPU</span>
+                    <span class="btn-cost">Cost: 0 Threads</span>
+                    <span class="btn-desc">Applies [Overclocked]. Generate 6 Threads next turn.</span>
+                </button>
+                <button class="action-btn btn-setup" onclick="selectMove('flush_dns')">
+                    <span class="btn-title">Flush DNS</span>
+                    <span class="btn-cost">Cost: 1 Thread</span>
+                    <span class="btn-desc">Clears all negative statuses (Congestion, Encryption, Tracing).</span>
+                </button>
+                <button class="action-btn btn-setup" onclick="selectMove('restore_backup')">
+                    <span class="btn-title">Restore Backup</span>
+                    <span class="btn-cost">Cost: 3 Threads</span>
+                    <span class="btn-desc">Restores 25 HP. Critical for surviving long engagements.</span>
+                </button>
+                <button class="action-btn btn-setup" onclick="selectMove('crypto_miner')">
+                    <span class="btn-title">Deploy Miner</span>
+                    <span class="btn-cost">Cost: 3 Threads</span>
+                    <span class="btn-desc">Applies [Mining]. Permanent +1 passive Thread regen. Takes 5 DMG.</span>
+                </button>
+                <button class="action-btn btn-setup" onclick="selectMove('zero_day')">
+                    <span class="btn-title">Zero-Day R&D</span>
+                    <span class="btn-cost">Cost: 4 Threads</span>
+                    <span class="btn-desc">Applies [Weaponized]. Your next attack ignores Firewalls/Honeypots.</span>
+                </button>
+            </div>
+
+                <div class="lock-in-zone">
+                    <p>SELECTED: <span id="selected-move" class="highlight">NONE</span></p>
+                    <button id="lock-btn" class="master-btn" onclick="lockIn()">LOCK IN PAYLOAD</button>
+                </div>
+            </section>
+
+            <section class="terminal">
+                <h3>SYSTEM LOGS</h3>
+                <div id="log-stream"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/app.js"></script>
+
+    <div id="page-transition" class="page-wipe active"></div>
+
+    <script>
+        // 1. When page loads, wait 200ms, then lift the door (Fixes the blink)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('page-transition').classList.remove('active');
+            }, 200); 
+        });
+
+        // 2. Intercept page links
+        document.querySelectorAll('.glitch-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                const targetUrl = this.href;
+                
+                // Slam the door DOWN
+                document.getElementById('page-transition').classList.add('active');
+                
+                // Wait 600ms (500ms animation + 100ms buffer) before routing
+                setTimeout(() => {
+                    window.location = targetUrl;
+                }, 600);
+            });
+        });
+    </script>
+</body>
+</html>

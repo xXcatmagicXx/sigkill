@@ -1,0 +1,369 @@
+:root {
+    --bg: #050a08;
+    --primary: #00ff41;
+    --cpu-color: #0094a4;
+    --red: #ff2a2a;
+    --border: #1a4224;
+}
+
+body {
+    background: var(--bg);
+    color: var(--primary);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0; padding: 20px;
+}
+
+.scanline {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px; z-index: 9999; pointer-events: none;
+}
+
+.hud {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;
+}
+
+.bar-container { width: 300px; background: #111; border: 1px solid var(--border); margin-bottom: 5px; }
+.bar { 
+    height: 20px; 
+    display: flex; 
+    align-items: center; 
+    padding-left: 10px; 
+    font-weight: bold; 
+    color: #000; 
+    transition: width 0.3s; 
+    white-space: nowrap; /* ADD THIS LINE! */
+}
+.hp { background: var(--primary); width: 100%; }
+.cpu { background: var(--cpu-color); width: 60%; color: white;} /* 3/5 defaults to 60% */
+
+.dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* .category { border: 1px dashed var(--border); padding: 10px; margin-bottom: 15px; } */
+/* --- COMPACT CATEGORY GRID --- */
+.category { 
+    border: 1px dashed var(--border); 
+    padding: 5px; /* Tighter padding inside the box */
+    margin-bottom: 10px; /* Tighter spacing between boxes */
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Forces exactly 5 equal columns */
+    gap: 8px; /* Tighter spacing between buttons */
+}
+
+/* Force the title to sit on its own row above the buttons */
+.category h4 {
+    grid-column: 1 / -1; /* Spans from the first column to the last */
+    margin: 0 0 8px 0;
+    color: #aaa;
+    letter-spacing: 1px;
+}
+
+h3, h4 { margin-top: 0; color: #aaa; }
+
+/* --- NEW ACTION BUTTON STYLES --- */
+/* --- CYBERPUNK ACTION BUTTONS --- */
+/* --- COMPACT ACTION BUTTONS --- */
+.action-btn {
+    position: relative; /* ADD THIS: Anchors the absolute text */
+    overflow: hidden; /* ADD THIS: Prevents text from spilling out */
+    background: #050a08;
+    border: 1px solid; /* Slightly thinner border */
+    padding: 6px 4px; /* Reduced padding */
+    width: 100%; 
+    margin: 0;   
+    cursor: pointer; 
+    font-family: inherit;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px; /* Bumped slightly to guarantee text fits */
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+/* Add a transition to the title and cost so they fade smoothly */
+.btn-title, .btn-cost {
+    transition: opacity 0.2s ease;
+}
+
+/* Make the title stand out */
+.btn-title {
+    font-size: 0.8rem; /* Smaller title text */
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-align: center;
+    text-shadow: 0 0 5px currentColor;
+}
+
+/* Make the cost small and muted */
+.btn-cost {
+    font-size: 0.65rem; /* Smaller cost text */
+    opacity: 0.9;
+}
+
+/* Category Colors & Hover States */
+/* Force the colors so NO WHITE shows up */
+.btn-aggression { border-color: #ff2a2a; color: #ff2a2a; }
+.btn-aggression:hover { background: rgba(255, 42, 42, 0.2); box-shadow: 0 0 10px #ff2a2a; }
+
+.btn-defense { border-color: #ff00ff; color: #ff00ff; }
+.btn-defense:hover { background: rgba(255, 0, 255, 0.2); box-shadow: 0 0 10px #ff00ff; }
+
+.btn-setup { border-color: #00ff41; color: #00ff41; }
+.btn-setup:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 10px #00ff41; }
+
+.action-btn:disabled { 
+    border-color: #333 !important; 
+    color: #555 !important; 
+    background: #000 !important; 
+    cursor: not-allowed; 
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Status Effect Tags */
+.status-badge {
+    background: #fff; color: #000; padding: 2px 6px; font-size: 0.8rem;
+    margin-right: 5px; font-weight: bold; display: inline-block; margin-top: 5px;
+}
+
+.master-btn { width: 100%; font-size: 1.2rem; padding: 15px; border: 2px solid var(--primary); font-weight: bold; background: var(--primary)}
+.master-btn.locked { background: var(--primary); color: #000; }
+
+.terminal { border: 1px solid var(--border); background: #000; padding: 15px; height: 500px; }
+#log-stream { height: 90%; overflow-y: auto; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+.highlight { color: var(--cpu-color); font-weight: bold; }
+
+
+/* Lobby & Login Styles */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex; justify-content: center; align-items: center; z-index: 100;
+}
+.terminal-box {
+    border: 1px solid var(--primary); background: #050a08;
+    padding: 30px; width: 30%; box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+}
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 5px; color: #aaa; }
+input[type="text"] {
+    width: 100%; background: #000; border: 1px dashed var(--primary);
+    color: var(--primary); padding: 10px; font-family: inherit; font-size: 1.1rem;
+    box-sizing: border-box; outline: none;
+}
+input[type="text"]:focus { border-style: solid; box-shadow: 0 0 5px var(--primary); }
+.text-red { color: var(--red); margin-top: 10px; }
+.hidden { display: none !important; }
+
+
+
+/* --- TERMINAL LOG COLORS --- */
+.text-aggression { color: #ff2a2a; text-shadow: 0 0 5px #ff2a2a; }
+.text-defense { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+.text-setup { color: #00ff41; text-shadow: 0 0 5px #00ff41; }
+.text-system { color: #00e5ff; font-weight: bold; }
+.text-error { color: #ff0000; font-weight: bold; background: rgba(255, 0, 0, 0.15); padding: 2px; }
+.text-neutral { color: #aaaaaa; font-style: italic; }
+
+
+
+
+/* --- BUTTON HOVER DECRYPTION --- */
+/* --- SMOOTH BUTTON HOVER DECRYPTION --- */
+.btn-desc {
+    position: absolute; /* Floats the text over the button */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    padding: 4px;
+    box-sizing: border-box;
+    
+    font-size: 0.65rem;
+    line-height: 1.2;
+    text-transform: none;
+    color: #eee;
+    text-shadow: none;
+    background: #050a08; /* Matches button background to hide the title beneath it */
+    
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease; /* Smooth fade-in */
+    pointer-events: none; /* Ensures the button click still registers perfectly */
+}
+
+/* When hovering, fade OUT the title and cost... */
+.action-btn:hover .btn-title,
+.action-btn:hover .btn-cost { 
+    opacity: 0; 
+}
+
+/* ...and fade IN the description */
+.action-btn:hover .btn-desc { 
+    opacity: 1; 
+}
+
+
+
+/* --- CODEX ENCYCLOPEDIA STYLES --- */
+.codex-card {
+    background: #050a08;
+    border: 1px solid #333;
+    border-left: 5px solid #333; /* Color coded based on category */
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.border-aggression { border-left-color: #ff2a2a; }
+.border-defense { border-left-color: #ff00ff; }
+.border-setup { border-left-color: #00ff41; }
+
+.codex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.codex-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.codex-header span {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.codex-game {
+    margin-top: 0;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+/* The Accordion Mechanics */
+.accordion-btn {
+    background: transparent;
+    border: none;
+    padding: 5px 0;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    outline: none;
+    transition: 0.3s;
+}
+
+.text-aggression { color: #ff2a2a; }
+.text-defense { color: #ff00ff; }
+.text-setup { color: #00ff41; }
+
+.accordion-btn:hover { text-shadow: 0 0 8px currentColor; }
+
+/* Rotate the arrow when active */
+.accordion-btn.active { opacity: 0.8; }
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    background: #000;
+    margin-top: 5px;
+    border-radius: 2px;
+    padding: 0 10px;
+}
+
+.accordion-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #00e5ff; /* Cyan for real-world intel */
+    line-height: 1.5;
+}
+
+
+
+
+/* --- DIGITAL BLAST DOOR (MATRIX WIPE) --- */
+.page-wipe {
+    position: fixed;
+    top: -100vh; 
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #020604;
+    /* This creates a cyberpunk grid pattern */
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    border-bottom: 5px solid #00ff41;
+    box-shadow: 0 10px 40px rgba(0, 255, 65, 0.4);
+    z-index: 99999;
+    pointer-events: none;
+    /* Slightly slower, smoother animation */
+    transition: top 0.5s cubic-bezier(0.8, 0, 0.2, 1); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* The loading text that appears inside the door */
+.page-wipe::after {
+    content: "[ DECRYPTING SYSTEM STATE... ]";
+    color: #00ff41;
+    font-family: inherit;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ff41;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.page-wipe.active {
+    top: 0; /* Slams the door down */
+}
+
+.page-wipe.active::after {
+    opacity: 1; /* Fades in the text when the door is down */
+    transition-delay: 0.3s;
+}
+
+
+
+/* --- SIGKILL FATALITY ANIMATION --- */
+.sigkill-text {
+    color: #ff0000;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ff0000;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+}
+
+.glitch-block {
+    animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+    color: #ff2a2a;
+    font-weight: bold;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff2a2a;
+    padding: 10px;
+}
+
+@keyframes glitch-skew {
+    0% { transform: skew(0deg); }
+    20% { transform: skew(-10deg); }
+    40% { transform: skew(10deg); }
+    60% { transform: skew(-5deg); }
+    80% { transform: skew(5deg); }
+    100% { transform: skew(0deg); }
+}
