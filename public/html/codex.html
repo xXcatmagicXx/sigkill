@@ -204,6 +204,46 @@
 
     </main>
 
+    <div class="category">
+        <h4>[ NETWORK STATUS EFFECTS ]</h4>
+        
+        <div class="codex-entry">
+            <h5 class="text-aggression">[ CONGESTED ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator regenerates 1 less Thread on the following turn. Cancels out Overclocked.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Network Congestion.</em> The network is flooded with traffic, filling up routing queues and causing packet loss, significantly slowing down the operator's ability to process new commands.</p>
+        </div>
+
+        <div class="codex-entry">
+            <h5 class="text-aggression">[ ENCRYPTED ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator's [ SETUP & RECOVERY ] payloads cost double the Threads to execute on the next turn.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Ransomware Encryption.</em> Critical system files are locked behind cryptographic keys. Attempting to run standard recovery or setup operations becomes computationally massive as the system struggles to read locked data.</p>
+        </div>
+
+        <div class="codex-entry">
+            <h5 class="text-defense">[ TRACED ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator takes +50% Damage from the next [ AGGRESSION ] payload they are hit with.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Traffic Analysis.</em> An opponent has intercepted unencrypted packets and mapped out the operator's internal network architecture, allowing subsequent attacks to strike critical vulnerabilities directly.</p>
+        </div>
+
+        <div class="codex-entry">
+            <h5 class="text-setup">[ WEAPONIZED ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator's next attack is completely unblockable. It shreds Firewalls, bypasses Honeypots, and ignores IP Spoofing.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Zero-Day Exploit.</em> The operator has deployed an attack targeting a software vulnerability that is entirely unknown to the vendor. Because it is unknown, no antivirus signatures or firewall rules exist to stop it.</p>
+        </div>
+
+        <div class="codex-entry">
+            <h5 class="text-setup">[ OVERCLOCKED ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator generates 6 Threads on the next turn instead of the standard 2. Cancelled by Congested.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Hardware Overclocking.</em> Forcing the CPU's clock multiplier past the manufacturer's official limits to achieve a massive, temporary burst of processing power.</p>
+        </div>
+
+        <div class="codex-entry">
+            <h5 class="text-setup">[ MINING ]</h5>
+            <p><strong>Game Mechanic:</strong> The operator takes 5 flat damage but gains a permanent +1 passive Thread regeneration for the rest of the match.</p>
+            <p><strong>Real-World Equivalent:</strong> <em>Cryptojacking / Botnets.</em> Dedicating background server resources to constantly mine cryptocurrency or run distributed tasks. It permanently generates resources, but the constant 100% CPU load physically degrades the hardware over time.</p>
+        </div>
+    </div>
+
     <script>
         const accordions = document.querySelectorAll('.accordion-btn');
         accordions.forEach(btn => {

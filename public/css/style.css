@@ -249,6 +249,31 @@ input[type="text"]:focus { border-style: solid; box-shadow: 0 0 5px var(--primar
     line-height: 1.4;
 }
 
+/* --- CODEX ENTRY STYLING --- */
+.codex-entry {
+    background: rgba(0, 255, 65, 0.05);
+    border-left: 3px solid var(--primary);
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.codex-entry h5 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.codex-entry p {
+    margin: 5px 0;
+    font-size: 0.85rem;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+.codex-entry strong {
+    color: #fff;
+}
+
 /* The Accordion Mechanics */
 .accordion-btn {
     background: transparent;
