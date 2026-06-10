@@ -26,7 +26,7 @@ SIGKILL is a real-time, 1v1 tactical hacking simulator played directly in the br
 ## [ INSTALLATION & DEPLOYMENT ]
 
 1. **Clone the repository:**
-git clone https://github.com/YourUsername/sigkill.git
+git clone https://github.com/xXcatmagicXx/sigkill.git
 cd sigkill
 
 2. **Install dependencies:**
