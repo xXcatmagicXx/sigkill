@@ -139,23 +139,85 @@ function updateUI(state) {
     document.getElementById('opp-hp').style.width = `${opp.hp}%`;
     document.getElementById('opp-hp').innerText = `${opp.hp}%`;
     
-    // Update Resource Bar (Now using Threads)
+    // --- 1. Calculate Dynamic Thread Generation ---
+    let threadRate = "+2";
+    let rateColor = "#00ff41";
+    if (me.statuses.includes('Overclocked')) { threadRate = "+6"; }
+    else if (me.statuses.includes('Congested')) { threadRate = "+1"; rateColor = "#ff3333"; }
+    
+    if (me.statuses.includes('Mining')) {
+        let currentInt = parseInt(threadRate.replace('+', ''));
+        threadRate = "+" + (currentInt + 1);
+    }
+
     const threadPct = (me.threads / me.maxThreads) * 100;
     const cpuBar = document.getElementById('my-cpu');
     if (cpuBar) {
         cpuBar.style.width = `${threadPct}%`;
-        cpuBar.innerText = `THREADS: ${me.threads}/${me.maxThreads}`;
+        cpuBar.innerHTML = `THREADS: ${me.threads}/${me.maxThreads} <span style="color: ${rateColor}; font-size: 0.8rem; margin-left: 5px;">(${threadRate}/turn)</span>`;
     }
 
-    // Render Status Effects
+    // --- 2. Dynamic UI Thread Costs & Disable Logic ---
+    const moveCosts = {
+        'syn_flood': 1, 'sql_inject': 3, 'ransomware': 5, 'ddos': 'ALL', 'rm_rf': 8,
+        'packet_sniff': 1, 'honeypot': 3, 'firewall': 2, 'ip_spoof': 3, 'kill_process': 4,
+        'overclock': 0, 'flush_dns': 1, 'restore_backup': 3, 'crypto_miner': 3, 'zero_day': 4
+    };
+    const setupMoves = ['overclock', 'flush_dns', 'restore_backup', 'crypto_miner', 'zero_day'];
+
+    if (myRole !== 'spectator') {
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            const onclickAttr = btn.getAttribute('onclick');
+            if (!onclickAttr) return;
+            const moveMatch = onclickAttr.match(/'([^']+)'/);
+            if (!moveMatch) return;
+            const moveId = moveMatch[1];
+            
+            let currentCost = moveCosts[moveId];
+            let isEncrypted = me.statuses.includes('Encrypted') && setupMoves.includes(moveId);
+            
+            const costSpan = btn.querySelector('.btn-cost');
+            if (isEncrypted && typeof currentCost === 'number' && currentCost > 0) {
+                let numCost = currentCost * 2;
+                costSpan.innerText = `COST: ${numCost} THREADS`;
+                costSpan.style.color = '#ff3333';
+                btn.disabled = (me.threads < numCost);
+            } else {
+                costSpan.innerText = `Cost: ${currentCost} ${currentCost === 1 ? 'Thread' : 'Threads'}`;
+                costSpan.style.color = ''; 
+                if (currentCost === 'ALL') {
+                    btn.disabled = (me.threads === 0);
+                } else {
+                    btn.disabled = (me.threads < currentCost);
+                }
+            }
+        });
+    }
+
+    // --- 3. Render Status Effects & Tooltips ---
+    const generateStatusHTML = (statuses, firewallTurns) => {
+        let html = '';
+        statuses.forEach(s => {
+            let desc = ""; let bg = "error-bg";
+            if (s === 'Encrypted') { desc = "Setup & Recovery costs doubled."; }
+            else if (s === 'Congested') { desc = "Thread regen reduced."; }
+            else if (s === 'Traced') { desc = "Next attack takes +50% DMG."; }
+            else if (s === 'Overclocked') { desc = "Regen 4 Threads AND gain +1 Max Thread."; bg = "defense-bg"; }
+            else if (s === 'Mining') { desc = "+1 Passive Thread regen."; bg = "defense-bg"; }
+            else if (s === 'Weaponized') { desc = "Next attack ignores defenses & destroys 2 Max Threads."; bg = "defense-bg"; }
+            html += `<div class="status-badge ${bg}">${s}<span class="tooltip-text">${desc}</span></div>`;
+        });
+        if (firewallTurns > 0) {
+            html += `<div class="status-badge defense-bg">Firewall (${firewallTurns}T)<span class="tooltip-text">Blocks 100% of the next attack, then shatters.</span></div>`;
+        }
+        return html;
+    };
+
     const myStatusDiv = document.getElementById('my-statuses');
-    if (myStatusDiv) {
-        myStatusDiv.innerHTML = me.statuses.map(s => `<span class="status-badge">${s}</span>`).join('');
-    }
+    if (myStatusDiv) myStatusDiv.innerHTML = generateStatusHTML(me.statuses, me.firewallTurns);
+    
     const oppStatusDiv = document.getElementById('opp-statuses');
-    if (oppStatusDiv) {
-        oppStatusDiv.innerHTML = opp.statuses.map(s => `<span class="status-badge">${s}</span>`).join('');
-    }
+    if (oppStatusDiv) oppStatusDiv.innerHTML = generateStatusHTML(opp.statuses, opp.firewallTurns);
 }
 
 // Game Over Logic

@@ -19,8 +19,8 @@ function createInitialState() {
     return {
         turn: 1,
         players: {
-            p1: { id: null, name: null, hp: 100, threads: 4, maxThreads: 10, action: null, statuses: [] },
-            p2: { id: null, name: null, hp: 100, threads: 4, maxThreads: 10, action: null, statuses: [] }
+            p1: { id: null, name: null, hp: 100, threads: 4, maxThreads: 10, action: null, statuses: [], firewallTurns: 0 },
+            p2: { id: null, name: null, hp: 100, threads: 4, maxThreads: 10, action: null, statuses: [], firewallTurns: 0 }
         }
     };
 }
@@ -30,9 +30,9 @@ const moveSet = {
     'sql_inject': { type: 'aggression', cost: 3, dmg: 20, name: 'SQL Injection' },
     'ransomware': { type: 'aggression', cost: 5, dmg: 15, name: 'Ransomware' },
     'ddos': { type: 'aggression', cost: 0, dmg: 0, name: 'DDoS Botnet' },
-    'rm_rf': { type: 'aggression', cost: 7, dmg: 45, name: 'Recursive Delete' },
+    'rm_rf': { type: 'aggression', cost: 8, dmg: 45, name: 'Recursive Delete' },
     'packet_sniff': { type: 'defense', cost: 1, dmg: 0, name: 'Packet Sniffer' },
-    'honeypot': { type: 'defense', cost: 2, dmg: 0, name: 'Deploy Honeypot' },
+    'honeypot': { type: 'defense', cost: 3, dmg: 0, name: 'Deploy Honeypot' },
     'firewall': { type: 'defense', cost: 2, dmg: 0, name: 'Hard Firewall' },
     'ip_spoof': { type: 'defense', cost: 3, dmg: 0, name: 'IP Spoofing' },
     'kill_process': { type: 'defense', cost: 4, dmg: 0, name: 'Kill Process' },
@@ -55,8 +55,8 @@ function resolveTurn(roomCode) {
     if (!p1Move || !p2Move) return;
 
     // Dynamic Adjustments (DDoS uses all threads)
-    if (p1.action === 'ddos') { p1Move.cost = p1.threads; p1Move.dmg = p1.threads * 5; }
-    if (p2.action === 'ddos') { p2Move.cost = p2.threads; p2Move.dmg = p2.threads * 5; }
+    if (p1.action === 'ddos') { p1Move.cost = p1.threads; p1Move.dmg = p1.threads * 7; }
+    if (p2.action === 'ddos') { p2Move.cost = p2.threads; p2Move.dmg = p2.threads * 7; }
 
     // Pay Costs
     let p1Cost = p1.statuses.includes('Encrypted') && (p1Move.type === 'setup' || p1Move.type === 'recovery') ? p1Move.cost * 2 : p1Move.cost;
@@ -115,32 +115,77 @@ function resolveTurn(roomCode) {
     if (p2.action === 'packet_sniff') { p1.statuses.push('Traced'); logs.push({ type: 'defense', text: `> ${p2.name} injected a Packet Sniffer. ${p1.name} is Traced.` }); }
 
     // --- UPGRADED BLOCKERS (Now respect Zero-Days) ---
+
+    // === PLAYER 1 DEFENSES ===
     if (p1.action === 'honeypot') {
         if (p2Move.type === 'aggression' && !p2Unblockable) { logs.push({ type: 'defense', text: `> ${p1.name} deployed Honeypot! ${p2.name}'s attack was trapped! (20 Recoil)` }); p1IncomingDmg = 0; p2IncomingDmg += 20; }
         else if (p2Move.type === 'aggression' && p2Unblockable) { logs.push({ type: 'error', text: `> ${p1.name}'s Honeypot was bypassed by the Zero-Day!` }); }
         else { logs.push({ type: 'defense', text: `> ${p1.name} deployed Honeypot, but no intruders detected.` }); }
     }
-    if (p1.action === 'firewall') {
-        if (p2Move.type === 'aggression' && p2Unblockable) { logs.push({ type: 'error', text: `> ${p1.name}'s Firewall was shredded by the Zero-Day!` }); }
-        else { logs.push({ type: 'defense', text: `> ${p1.name} raised Hard Firewall.` }); p1IncomingDmg = Math.floor(p1IncomingDmg * 0.4); }
+if (p1.action === 'ip_spoof') {
+        if (p2Move.type === 'aggression' && p2Unblockable) { 
+            logs.push({ type: 'error', text: `> ${p1.name}'s IP Spoofing was tracked through the Zero-Day!` }); 
+        }
+        else { 
+            logs.push({ type: 'defense', text: `> ${p1.name} spoofed their IP! Evaded incoming attacks.` }); 
+            p1IncomingDmg = 0; 
+            if (p2.action === 'packet_sniff') { p1.statuses = p1.statuses.filter(s => s !== 'Traced'); } // Evade sniffer
+            
+            // --- NEW: DATA VAMPIRE LOGIC ---
+            if (p2Move.type === 'aggression') {
+                p1.threads = Math.min(p1.threads + p2Cost, p1.maxThreads);
+                logs.push({ type: 'setup', text: `> [ DATA VAMPIRE ] ${p1.name} intercepted the traffic and absorbed ${p2Cost} Threads!` });
+            }
+        }
     }
-    if (p1.action === 'ip_spoof') {
-        if (p2Move.type === 'aggression' && p2Unblockable) { logs.push({ type: 'error', text: `> ${p1.name}'s IP Spoofing was tracked through the Zero-Day!` }); }
-        else { logs.push({ type: 'defense', text: `> ${p1.name} spoofed their IP! Evaded incoming attacks.` }); p1IncomingDmg = 0; }
+    if (p1.action === 'firewall') {
+        p1.firewallTurns = 3;
+        logs.push({ type: 'defense', text: `> ${p1.name} initialized a Hard Firewall buffer (3 Turns).` });
+    } else if (p1.firewallTurns > 0) {
+        if (p2Move.type === 'aggression' && p2Unblockable) { 
+            logs.push({ type: 'error', text: `> ${p1.name}'s Firewall was shredded by the Zero-Day!` }); 
+            p1.firewallTurns = 0;
+        } else if (p1IncomingDmg > 0) {
+            logs.push({ type: 'defense', text: `> ${p1.name}'s Hard Firewall absorbed the attack and shattered!` });
+            p1IncomingDmg = 0;
+            p1.firewallTurns = 0; // Shatters after 1 block
+        }
     }
 
+    // === PLAYER 2 DEFENSES ===
     if (p2.action === 'honeypot') {
         if (p1Move.type === 'aggression' && !p1Unblockable) { logs.push({ type: 'defense', text: `> ${p2.name} deployed Honeypot! ${p1.name}'s attack was trapped! (20 Recoil)` }); p2IncomingDmg = 0; p1IncomingDmg += 20; }
         else if (p1Move.type === 'aggression' && p1Unblockable) { logs.push({ type: 'error', text: `> ${p2.name}'s Honeypot was bypassed by the Zero-Day!` }); }
         else { logs.push({ type: 'defense', text: `> ${p2.name} deployed Honeypot, but no intruders detected.` }); }
     }
-    if (p2.action === 'firewall') {
-        if (p1Move.type === 'aggression' && p1Unblockable) { logs.push({ type: 'error', text: `> ${p2.name}'s Firewall was shredded by the Zero-Day!` }); }
-        else { logs.push({ type: 'defense', text: `> ${p2.name} raised Hard Firewall.` }); p2IncomingDmg = Math.floor(p2IncomingDmg * 0.4); }
-    }
     if (p2.action === 'ip_spoof') {
-        if (p1Move.type === 'aggression' && p1Unblockable) { logs.push({ type: 'error', text: `> ${p2.name}'s IP Spoofing was tracked through the Zero-Day!` }); }
-        else { logs.push({ type: 'defense', text: `> ${p2.name} spoofed their IP! Evaded incoming attacks.` }); p2IncomingDmg = 0; }
+        if (p1Move.type === 'aggression' && p1Unblockable) { 
+            logs.push({ type: 'error', text: `> ${p2.name}'s IP Spoofing was tracked through the Zero-Day!` }); 
+        }
+        else { 
+            logs.push({ type: 'defense', text: `> ${p2.name} spoofed their IP! Evaded incoming attacks.` }); 
+            p2IncomingDmg = 0; 
+            if (p1.action === 'packet_sniff') { p2.statuses = p2.statuses.filter(s => s !== 'Traced'); } // Evade sniffer
+            
+            // --- NEW: DATA VAMPIRE LOGIC ---
+            if (p1Move.type === 'aggression') {
+                p2.threads = Math.min(p2.threads + p1Cost, p2.maxThreads);
+                logs.push({ type: 'setup', text: `> [ DATA VAMPIRE ] ${p2.name} intercepted the traffic and absorbed ${p1Cost} Threads!` });
+            }
+        }
+    }
+    if (p2.action === 'firewall') {
+        p2.firewallTurns = 3;
+        logs.push({ type: 'defense', text: `> ${p2.name} initialized a Hard Firewall buffer (3 Turns).` });
+    } else if (p2.firewallTurns > 0) {
+        if (p1Move.type === 'aggression' && p1Unblockable) { 
+            logs.push({ type: 'error', text: `> ${p2.name}'s Firewall was shredded by the Zero-Day!` }); 
+            p2.firewallTurns = 0;
+        } else if (p2IncomingDmg > 0) {
+            logs.push({ type: 'defense', text: `> ${p2.name}'s Hard Firewall absorbed the attack and shattered!` });
+            p2IncomingDmg = 0;
+            p2.firewallTurns = 0; // Shatters after 1 block
+        }
     }
 
     // Execute Successful Moves & Apply Statuses
@@ -172,6 +217,18 @@ function resolveTurn(roomCode) {
     p1.hp = Math.max(0, p1.hp - p1IncomingDmg);
     p2.hp = Math.max(0, p2.hp - p2IncomingDmg);
 
+    // --- NEW: WEAPONIZED CPU BREAK ---
+    if (p2IncomingDmg > 0 && p1Unblockable) {
+        p2.maxThreads = Math.max(5, p2.maxThreads - 2); // Floor of 5
+        p2.threads = Math.min(p2.threads, p2.maxThreads); // Clamp current threads
+        logs.push({ type: 'error', text: `> [ HARDWARE CORRUPTION ] ${p1.name}'s Zero-Day shattered ${p2.name}'s CPU! (-2 Max Threads)` });
+    }
+    if (p1IncomingDmg > 0 && p2Unblockable) {
+        p1.maxThreads = Math.max(5, p1.maxThreads - 2); // Floor of 5
+        p1.threads = Math.min(p1.threads, p1.maxThreads); // Clamp current threads
+        logs.push({ type: 'error', text: `> [ HARDWARE CORRUPTION ] ${p2.name}'s Zero-Day shattered ${p1.name}'s CPU! (-2 Max Threads)` });
+    }
+
     if (p1.hp === 0 || p2.hp === 0) {
         let resultMsg = "";
         if (p1.hp === 0 && p2.hp === 0) { resultMsg = "MUTUAL DESTRUCTION - DRAW"; logs.push({ type: 'error', text: `> FATAL ERROR: Both servers wiped.` }); }
@@ -184,17 +241,30 @@ function resolveTurn(roomCode) {
         return; 
     }
 
-    let p1Regen = p1.statuses.includes('Congested') ? 1 : (p1.statuses.includes('Overclocked') ? 6 : 2);
-    let p2Regen = p2.statuses.includes('Congested') ? 1 : (p2.statuses.includes('Overclocked') ? 6 : 2);
+    let p1Regen = p1.statuses.includes('Congested') ? 1 : (p1.statuses.includes('Overclocked') ? 4 : 2);
+    let p2Regen = p2.statuses.includes('Congested') ? 1 : (p2.statuses.includes('Overclocked') ? 4 : 2);
     
     if (p1.statuses.includes('Mining')) p1Regen += 1;
     if (p2.statuses.includes('Mining')) p2Regen += 1;
+
+    // --- NEW: OVERCLOCK MAX THREAD EXPANSION ---
+    if (p1.statuses.includes('Overclocked')) {
+        p1.maxThreads = Math.min(15, p1.maxThreads + 1); // Ceiling of 15
+        logs.push({ type: 'setup', text: `> [ UPGRADE ] ${p1.name}'s CPU expanded! Max Threads: ${p1.maxThreads}` });
+    }
+    if (p2.statuses.includes('Overclocked')) {
+        p2.maxThreads = Math.min(15, p2.maxThreads + 1); // Ceiling of 15
+        logs.push({ type: 'setup', text: `> [ UPGRADE ] ${p2.name}'s CPU expanded! Max Threads: ${p2.maxThreads}` });
+    }
 
     p1.threads = Math.min(p1.threads + p1Regen, p1.maxThreads);
     p2.threads = Math.min(p2.threads + p2Regen, p2.maxThreads);
 
     p1.statuses = p1.statuses.filter(s => s !== 'Congested' && s !== 'Overclocked');
     p2.statuses = p2.statuses.filter(s => s !== 'Congested' && s !== 'Overclocked');
+
+    if (p1.firewallTurns > 0) p1.firewallTurns--;
+    if (p2.firewallTurns > 0) p2.firewallTurns--;
 
     p1.action = null;
     p2.action = null;

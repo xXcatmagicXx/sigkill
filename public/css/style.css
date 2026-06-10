@@ -146,9 +146,68 @@ h3, h4 { margin-top: 0; color: #aaa; }
 }
 
 /* Status Effect Tags */
+/* --- STATUS BADGE & TOOLTIP STYLING --- */
 .status-badge {
-    background: #fff; color: #000; padding: 2px 6px; font-size: 0.8rem;
-    margin-right: 5px; font-weight: bold; display: inline-block; margin-top: 5px;
+    position: relative;
+    display: inline-block;
+    background: #111; 
+    color: #fff; 
+    padding: 2px 8px; 
+    font-size: 0.8rem;
+    border: 1px solid #333;
+    margin-right: 5px; 
+    font-weight: bold; 
+    margin-top: 5px;
+    cursor: help;
+}
+
+.error-bg { border-color: #ff2a2a; color: #ff2a2a; background: rgba(255, 42, 42, 0.1); }
+.defense-bg { border-color: #00ff41; color: #00ff41; background: rgba(0, 255, 65, 0.1); }
+
+/* Tooltip container styling */
+.status-badge .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #050a08;
+    color: #fff;
+    text-align: center;
+    border: 1px solid;
+    padding: 6px;
+    position: absolute;
+    z-index: 10000;
+    bottom: 130%; 
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.75rem;
+    line-height: 1.3;
+}
+
+.error-bg .tooltip-text { border-color: #ff2a2a; box-shadow: 0 0 10px rgba(255, 42, 42, 0.4); }
+.defense-bg .tooltip-text { border-color: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, 0.4); }
+
+/* Show tooltip text on mouse hover */
+.status-badge:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* --- TOOLTIP EDGE SCREEN FIX --- */
+
+/* Force Player 1's tooltips to expand to the right */
+#my-statuses .tooltip-text {
+    left: 0;
+    transform: none;
+    text-align: left;
+}
+
+/* Force Player 2's tooltips to expand to the left */
+#opp-statuses .tooltip-text {
+    left: auto;
+    right: 0;
+    transform: none;
+    text-align: right;
 }
 
 .master-btn { width: 100%; font-size: 1.2rem; padding: 15px; border: 2px solid var(--primary); font-weight: bold; background: var(--primary)}

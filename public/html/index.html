@@ -40,16 +40,16 @@
         <header class="hud">
             <div class="player-stats">
                 <h2>YOU [<span id="my-role">P1</span>]</h2>
-                <div class="bar-container"><div id="my-hp" class="bar hp">100%</div></div>
                 <div id="my-statuses"></div>
+                <div class="bar-container"><div id="my-hp" class="bar hp">100%</div></div>
                 <div class="bar-container"><div id="my-cpu" class="bar cpu">CPU: 3/5</div></div>
-                <div id="opp-statuses"></div>
             </div>
             
             <div class="turn-indicator">TURN <span id="turn-num">1</span></div>
             
             <div class="player-stats right">
                 <h2>OPPONENT</h2>
+                <div id="opp-statuses"></div>
                 <div class="bar-container"><div id="opp-hp" class="bar hp">100%</div></div>
             </div>
         </header>
@@ -77,11 +77,11 @@
                 <button class="action-btn btn-aggression" onclick="selectMove('ddos')">
                     <span class="btn-title">DDoS Botnet</span>
                     <span class="btn-cost">Cost: ALL Threads</span>
-                    <span class="btn-desc">Consumes all Threads. Deals 5 damage per Thread spent.</span>
+                    <span class="btn-desc">Consumes all Threads. Deals 7 damage per Thread spent.</span>
                 </button>
                 <button class="action-btn btn-aggression" onclick="selectMove('rm_rf')">
                     <span class="btn-title">Run rm -rf /</span>
-                    <span class="btn-cost">Cost: 7 Threads</span>
+                    <span class="btn-cost">Cost: 8 Threads</span>
                     <span class="btn-desc">Massive 45 damage, but highly susceptible to Honeypot recoil.</span>
                 </button>
             </div>
@@ -95,18 +95,18 @@
                 </button>
                 <button class="action-btn btn-defense" onclick="selectMove('honeypot')">
                     <span class="btn-title">Deploy Honeypot</span>
-                    <span class="btn-cost">Cost: 2 Threads</span>
-                    <span class="btn-desc">Blocks 100% of an attack and deals 20 Recoil Damage.</span>
+                    <span class="btn-cost">Cost: 3 Threads</span>
+                    <span class="btn-desc">Traps [AGGRESSION] attacks. Deals 20 Recoil Damage.</span>
                 </button>
                 <button class="action-btn btn-defense" onclick="selectMove('firewall')">
                     <span class="btn-title">Hard Firewall</span>
                     <span class="btn-cost">Cost: 2 Threads</span>
-                    <span class="btn-desc">Mitigates 60% of all incoming damage this turn.</span>
+                    <span class="btn-desc">Blocks 100% of the next attack. Shatters after 1 hit (3 Turns max).</span>
                 </button>
                 <button class="action-btn btn-defense" onclick="selectMove('ip_spoof')">
                     <span class="btn-title">IP Spoofing</span>
                     <span class="btn-cost">Cost: 3 Threads</span>
-                    <span class="btn-desc">Evades 100% of incoming attacks. Guaranteed dodge.</span>
+                    <span class="btn-desc">Evades all attacks. If attacked, you steal the exact Threads your opponent spent.</span>
                 </button>
                 <button class="action-btn btn-defense" onclick="selectMove('kill_process')">
                     <span class="btn-title">Kill Process</span>
@@ -120,7 +120,7 @@
                 <button class="action-btn btn-setup" onclick="selectMove('overclock')">
                     <span class="btn-title">Overclock CPU</span>
                     <span class="btn-cost">Cost: 0 Threads</span>
-                    <span class="btn-desc">Applies [Overclocked]. Generate 6 Threads next turn.</span>
+                    <span class="btn-desc">Applies [Overclocked]. Next turn, regen 4 Threads & permanently gain +1 Max Thread.</span>
                 </button>
                 <button class="action-btn btn-setup" onclick="selectMove('flush_dns')">
                     <span class="btn-title">Flush DNS</span>
@@ -140,7 +140,7 @@
                 <button class="action-btn btn-setup" onclick="selectMove('zero_day')">
                     <span class="btn-title">Zero-Day R&D</span>
                     <span class="btn-cost">Cost: 4 Threads</span>
-                    <span class="btn-desc">Applies [Weaponized]. Your next attack ignores Firewalls/Honeypots.</span>
+                    <span class="btn-desc">Next attack ignores defenses. If it hits, permanently destroys 2 opponent Max Threads.</span>
                 </button>
             </div>
 
