@@ -13,6 +13,28 @@ body {
     margin: 0; padding: 20px;
 }
 
+/* --- GITHUB SOURCE LINK (FIXED) --- */
+.github-link {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #00ff41;
+    text-decoration: none;
+    font-size: 1.1rem; /* Increased size */
+    font-weight: bold; /* Made it thicker */
+    letter-spacing: 1px;
+    opacity: 0.9; /* Bumped up base visibility */
+    transition: opacity 0.2s, text-shadow 0.2s;
+    z-index: 9999; /* Forces it above every other game element */
+    cursor: pointer; /* Forces the mouse to turn into a hand */
+    pointer-events: auto; /* Guarantees it registers clicks even if a transparent box is over it */
+}
+
+.github-link:hover {
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(0, 255, 65, 1); /* Stronger glow */
+}
+
 .scanline {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
