@@ -1,7 +1,7 @@
 # SIGKILL: Terminal Cyber Warfare
 
 ## [ LIVE DEMO ]
-**Play SIGKILL here:** [https://sigkill-x82y.onrender.com](https://sigkill-x82y.onrender.com)
+**Play SIGKILL here:** [https://sigkill.onrender.com/](https://sigkill.onrender.com/)
 *(Note: As this is hosted on a free tier, the server may take ~50s to wake up on the first load. after that everything should work smoothly until the server shuts it down again..)*
 
 ## [ SYSTEM OVERVIEW ]
