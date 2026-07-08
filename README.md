@@ -43,5 +43,5 @@ node server/server.js
 Open your browser and navigate to http://localhost:3000. To play against a friend locally or via a tunnel, share your IP or use a service like Localtunnel/Ngrok.
 
 ---
-*Developed and maintained by Tomer Hamtsov.*
+*Developed and no Longer maintained by me.*
 
